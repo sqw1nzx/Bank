@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALN Bank Sandbox</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        aln: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                            dark: '#0d0814',
+                            card: '#160d29'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .aln-card-gradient {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #3b0764 100%);
+        }
+
+        body {
+            background-color: #09050e;
+            color: #f3f4f6;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4 font-sans antialiased">
+
+    <!-- Mobile Frame Container -->
+    <div class="w-full max-w-md h-[100vh] sm:h-[844px] bg-[#120a21] sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative border border-purple-900/40">
+        
+        <!-- Welcome Name Setup Screen -->
+        <div id="welcome-screen" class="absolute inset-0 bg-[#120a21] z-50 flex flex-col justify-between p-6 transition-all duration-500">
+            <div class="pt-10 space-y-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-400 flex items-center justify-center font-black text-white text-2xl shadow-xl shadow-purple-600/40">
+                    ALN
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-white">Добро пожаловать в ALN Bank</h1>
+                    <p class="text-xs text-purple-300/70 mt-1">Как к вам обращаться?</p>
+                </div>
+                <div class="pt-4">
+                    <label class="text-[10px] text-purple-400 font-bold block mb-1 uppercase tracking-wider">Ваше имя</label>
+                    <input type="text" id="username-input" placeholder="Например, Андрей" value="Андрей" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-purple-400 transition">
+                </div>
+            </div>
+            <button onclick="startApp()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2">
+                Войти в банк <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs text-purple-300/70 select-none z-20 shrink-0">
+            <span class="font-semibold" id="current-time">09:41</span>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-full text-purple-400"></i>
+            </div>
+        </div>
+
+        <!-- Top Header with ALN Bank Branding -->
+        <div class="px-5 py-2 flex items-center justify-between gap-3 shrink-0 z-10">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-400 flex items-center justify-center font-black text-white text-sm shadow-md shadow-purple-600/30">
+                    ALN
+                </div>
+                <span class="font-extrabold text-base tracking-wider text-white">ALN <span class="text-purple-400 font-light">BANK</span></span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="openModal('topup-modal')" title="Песочница баланса" class="w-8 h-8 rounded-full bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-300 hover:bg-purple-600/40 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                </button>
+                <div onclick="openModal('welcome-screen-edit')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 p-[2px] cursor-pointer">
+                    <div class="w-full h-full bg-[#120a21] rounded-full flex items-center justify-center overflow-hidden">
+                        <span class="font-bold text-[11px] text-purple-200" id="user-avatar-initials">АН</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="px-5 py-1 shrink-0">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 text-xs"></i>
+                <input type="text" placeholder="Поиск по переводам и услугам ALN Bank" class="w-full bg-purple-950/40 border border-purple-800/40 rounded-xl py-1.5 pl-8 pr-3 text-xs text-white placeholder-purple-400/50 focus:outline-none focus:border-purple-500 transition">
+            </div>
+        </div>
+
+        <!-- Scrollable Main Content -->
+        <div class="flex-1 overflow-y-auto no-scrollbar px-5 pb-24 space-y-4 pt-2">
+            
+            <!-- User Welcome -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-1.5">
+                        Здравствуйте, <span id="display-user-name">Андрей</span> <i class="fa-solid fa-chevron-right text-[10px] text-purple-400"></i>
+                    </h1>
+                    <p class="text-[11px] text-purple-400/80">Мультифункциональный финансовый профиль</p>
+                </div>
+                <span class="bg-purple-900/60 border border-purple-700/50 text-purple-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                    ALN PREMIUM
+                </span>
+            </div>
+
+            <!-- Stories Carousel -->
+            <div class="flex gap-2.5 overflow-x-auto no-scrollbar -mx-5 px-5 py-1">
+                <div onclick="openModal('cashback-modal')" class="w-24 h-32 rounded-2xl aln-card-gradient p-2.5 flex flex-col justify-between shrink-0 cursor-pointer shadow-lg hover:scale-105 transition transform">
+                    <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                        <i class="fa-solid fa-bolt text-[10px] text-purple-200"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold leading-tight text-white">Кэшбэк и бонусы</span>
+                </div>
+                <div onclick="openModal('analytics-modal')" class="w-24 h-32 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-800 p-2.5 flex flex-col justify-between shrink-0 cursor-pointer shadow-lg hover:scale-105 transition transform">
+                    <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                        <i class="fa-solid fa-chart-pie text-[10px] text-indigo-200"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold leading-tight text-white">Аналитика трат</span>
+                </div>
+                <div onclick="openModal('piggy-modal')" class="w-24 h-32 rounded-2xl bg-gradient-to-br from-pink-600 to-purple-900 p-2.5 flex flex-col justify-between shrink-0 cursor-pointer shadow-lg hover:scale-105 transition transform">
+                    <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                        <i class="fa-solid fa-piggy-bank text-[10px] text-pink-200"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold leading-tight text-white">Копилка и цели</span>
+                </div>
+                <div onclick="openModal('limits-modal')" class="w-24 h-32 rounded-2xl bg-gradient-to-br from-fuchsia-600 to-purple-900 p-2.5 flex flex-col justify-between shrink-0 cursor-pointer shadow-lg hover:scale-105 transition transform">
+                    <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                        <i class="fa-solid fa-gauge-high text-[10px] text-fuchsia-200"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold leading-tight text-white">Лимиты расходов</span>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="openModal('topup-modal')" class="bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/40 rounded-xl p-2.5 flex flex-col items-center gap-1.5 transition">
+                    <div class="w-8 h-8 rounded-lg bg-purple-600/30 text-purple-300 flex items-center justify-center">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-white">Пополнить</span>
+                </button>
+                <button onclick="openModal('transfer-modal')" class="bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/40 rounded-xl p-2.5 flex flex-col items-center gap-1.5 transition">
+                    <div class="w-8 h-8 rounded-lg bg-purple-600/30 text-purple-300 flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-white">Перевести</span>
+                </button>
+                <button onclick="openModal('qr-modal')" class="bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/40 rounded-xl p-2.5 flex flex-col items-center gap-1.5 transition">
+                    <div class="w-8 h-8 rounded-lg bg-purple-600/30 text-purple-300 flex items-center justify-center">
+                        <i class="fa-solid fa-qrcode text-xs"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-white">QR-оплата</span>
+                </button>
+            </div>
+
+            <!-- Cards Slider Section -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-white tracking-wide">Ваши карты ALN</h3>
+                    <button onclick="openModal('add-card-modal')" class="text-[11px] text-purple-400 font-bold hover:text-purple-300 flex items-center gap-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i> Новая карта
+                    </button>
+                </div>
+                
+                <div id="cards-carousel" class="flex gap-3 overflow-x-auto no-scrollbar -mx-5 px-5 py-1">
+                    <!-- Cards injected via JS -->
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="space-y-2.5 pt-1">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-white tracking-wide">История операций ALN</h3>
+                    <span class="text-[10px] text-purple-400 cursor-pointer hover:text-purple-300">Все транзакции</span>
+                </div>
+                
+                <div class="space-y-2" id="transaction-list">
+                    <div class="bg-purple-950/30 border border-purple-900/30 rounded-xl p-2.5 flex justify-between items-center">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs">
+                                ⚡
+                            </div>
+                            <div>
+                                <div class="text-xs font-semibold text-white">Стартовый баланс</div>
+                                <div class="text-[10px] text-purple-400">Сегодня, 09:00 • ALN System</div>
+                            </div>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-400">+ 50 000 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-[#120a21]/95 backdrop-blur-lg border-t border-purple-900/40 px-4 flex justify-around items-center z-30">
+            <button class="flex flex-col items-center gap-1 text-purple-400">
+                <i class="fa-solid fa-wallet text-sm"></i>
+                <span class="text-[9px] font-medium">Главное</span>
+            </button>
+            <button onclick="openModal('transfer-modal')" class="flex flex-col items-center gap-1 text-purple-400/60 hover:text-purple-300 transition">
+                <i class="fa-solid fa-paper-plane text-sm"></i>
+                <span class="text-[9px] font-medium">Платежи</span>
+            </button>
+            <button onclick="openModal('analytics-modal')" class="flex flex-col items-center gap-1 text-purple-400/60 hover:text-purple-300 transition">
+                <i class="fa-solid fa-chart-pie text-sm"></i>
+                <span class="text-[9px] font-medium">Аналитика</span>
+            </button>
+            <button onclick="openModal('piggy-modal')" class="flex flex-col items-center gap-1 text-purple-400/60 hover:text-purple-300 transition">
+                <i class="fa-solid fa-piggy-bank text-sm"></i>
+                <span class="text-[9px] font-medium">Копилка</span>
+            </button>
+            <button onclick="openModal('topup-modal')" class="flex flex-col items-center gap-1 text-purple-400/60 hover:text-purple-300 transition">
+                <i class="fa-solid fa-sliders text-sm"></i>
+                <span class="text-[9px] font-medium">Опции</span>
+            </button>
+        </div>
+
+        <!-- Modal: Add New Card -->
+        <div id="add-card-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-credit-card text-purple-400"></i> Выпустить новую карту
+                    </h3>
+                    <button onclick="closeModal('add-card-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-purple-400 font-medium block mb-1">Название карты</label>
+                        <input type="text" id="new-card-name" placeholder="Например, ALN Travel" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-purple-400 font-medium block mb-1">Тип платежной системы</label>
+                        <select id="new-card-type" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                            <option value="MIR">МИР</option>
+                            <option value="VISA">VISA</option>
+                            <option value="MASTERCARD">Mastercard</option>
+                            <option value="PREMIUM">ALN Metal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-purple-400 font-medium block mb-1">Начальный баланс (₽)</label>
+                        <input type="number" id="new-card-balance" placeholder="10000" value="10000" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                </div>
+
+                <button onclick="createNewCard()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">
+                    Выпустить карту
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal: Transfer Receipt -->
+        <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200 p-4">
+            <div class="bg-white text-gray-900 w-full max-w-xs rounded-3xl p-6 space-y-4 shadow-2xl relative">
+                <div class="text-center space-y-1">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h3 class="text-base font-black">Чек перевода</h3>
+                    <p class="text-[10px] text-gray-500">ALN Bank • Успешно</p>
+                </div>
+                
+                <div class="border-t border-b border-dashed border-gray-300 py-3 space-y-2 text-xs">
+                    <div class="flex justify-between text-gray-500">
+                        <span>Дата:</span>
+                        <span id="receipt-date" class="font-medium text-gray-800">--</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500">
+                        <span>Отправитель:</span>
+                        <span id="receipt-sender" class="font-medium text-gray-800">--</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500">
+                        <span>Получатель:</span>
+                        <span id="receipt-recipient" class="font-medium text-gray-800">--</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500">
+                        <span>Сумма:</span>
+                        <span id="receipt-amount" class="font-bold text-emerald-600">--</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500">
+                        <span>Комиссия:</span>
+                        <span class="font-medium text-gray-800">0 ₽</span>
+                    </div>
+                </div>
+
+                <button onclick="closeModal('receipt-modal')" class="w-full bg-purple-900 hover:bg-purple-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                    Закрыть чек
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal: Analytics -->
+        <div id="analytics-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-purple-400"></i> Аналитика трат
+                    </h3>
+                    <button onclick="closeModal('analytics-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-purple-200">Переводы и платежи</span>
+                            <span class="text-white font-bold">45%</span>
+                        </div>
+                        <div class="w-full bg-purple-950 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-purple-200">Супермаркеты</span>
+                            <span class="text-white font-bold">30%</span>
+                        </div>
+                        <div class="w-full bg-purple-950 rounded-full h-2">
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: 30%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-purple-200">Развлечения</span>
+                            <span class="text-white font-bold">25%</span>
+                        </div>
+                        <div class="w-full bg-purple-950 rounded-full h-2">
+                            <div class="bg-fuchsia-500 h-2 rounded-full" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Piggy / Savings -->
+        <div id="piggy-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-piggy-bank text-purple-400"></i> Копилка ALN
+                    </h3>
+                    <button onclick="closeModal('piggy-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="bg-purple-950/40 p-4 rounded-2xl border border-purple-800/40 space-y-2">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-purple-300">Цель: Отпуск</span>
+                        <span id="piggy-saved-text" class="text-white font-bold">15 000 / 100 000 ₽</span>
+                    </div>
+                    <div class="w-full bg-purple-950 rounded-full h-2.5">
+                        <div id="piggy-bar" class="bg-gradient-to-r from-pink-500 to-purple-500 h-2.5 rounded-full" style="width: 15%"></div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] text-purple-400 font-medium block mb-1">Пополнить копилку (₽)</label>
+                    <input type="number" id="piggy-add-amount" placeholder="1000" value="1000" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                </div>
+                <button onclick="addToPiggy()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                    Отложить в копилку
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal: Cashback -->
+        <div id="cashback-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-purple-400"></i> Повышенный кэшбэк
+                    </h3>
+                    <button onclick="closeModal('cashback-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="space-y-2">
+                    <div class="p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl flex justify-between items-center">
+                        <span class="text-xs text-white font-medium">Такси и каршеринг — 10%</span>
+                        <input type="checkbox" checked class="accent-purple-600">
+                    </div>
+                    <div class="p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl flex justify-between items-center">
+                        <span class="text-xs text-white font-medium">Рестораны и кафе — 7%</span>
+                        <input type="checkbox" checked class="accent-purple-600">
+                    </div>
+                    <div class="p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl flex justify-between items-center">
+                        <span class="text-xs text-white font-medium">Одежда и обувь — 5%</span>
+                        <input type="checkbox" class="accent-purple-600">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Limits -->
+        <div id="limits-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gauge-high text-purple-400"></i> Лимиты расходов
+                    </h3>
+                    <button onclick="closeModal('limits-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div>
+                    <label class="text-[10px] text-purple-400 font-medium block mb-1">Дневной лимит (₽)</label>
+                    <input type="number" id="daily-limit-input" value="50000" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                </div>
+                <button onclick="saveLimits()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                    Сохранить лимит
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal: QR Code Scanner -->
+        <div id="qr-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 text-center">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-qrcode text-purple-400"></i> QR-сканер ALN
+                    </h3>
+                    <button onclick="closeModal('qr-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="w-48 h-48 border-2 border-dashed border-purple-500/60 rounded-2xl mx-auto flex flex-col items-center justify-center p-4 bg-purple-950/30">
+                    <i class="fa-solid fa-qrcode text-5xl text-purple-400 animate-pulse mb-2"></i>
+                    <span class="text-[10px] text-purple-300">Наведите камеру на QR-код</span>
+                </div>
+                <button onclick="simulateQrPayment()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                    Симуляция оплаты по QR (500 ₽)
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal: Balance Settings -->
+        <div id="topup-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> Баланс ALN Bank
+                    </h3>
+                    <button onclick="closeModal('topup-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <p class="text-[11px] text-purple-300/70">Введите любую сумму для теста баланса активной карты.</p>
+                
+                <div>
+                    <label class="text-[10px] text-purple-400 font-medium block mb-1">Новый баланс (₽)</label>
+                    <input type="number" id="topup-input" value="50000" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2.5 text-base font-bold text-white focus:outline-none focus:border-purple-400">
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="setQuickAmount(100000)" class="flex-1 bg-purple-900/40 border border-purple-700/40 text-purple-300 text-[11px] py-1.5 rounded-lg hover:bg-purple-800/50">100k ₽</button>
+                    <button onclick="setQuickAmount(500000)" class="flex-1 bg-purple-900/40 border border-purple-700/40 text-purple-300 text-[11px] py-1.5 rounded-lg hover:bg-purple-800/50">500k ₽</button>
+                    <button onclick="setQuickAmount(1000000)" class="flex-1 bg-purple-900/40 border border-purple-700/40 text-purple-300 text-[11px] py-1.5 rounded-lg hover:bg-purple-800/50">1 млн ₽</button>
+                </div>
+
+                <button onclick="applyTopup()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                    Сохранить изменения
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal: Transfer -->
+        <div id="transfer-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+            <div class="bg-[#1a112e] border border-purple-700/50 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane text-purple-400"></i> Перевод денег
+                    </h3>
+                    <button onclick="closeModal('transfer-modal')" class="text-purple-400 hover:text-white text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-purple-400 font-medium block mb-1">Получатель</label>
+                        <input type="text" id="recipient-input" placeholder="Имя или номер карты" value="Алексей П." class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-purple-400 font-medium block mb-1">Сумма (₽)</label>
+                        <input type="number" id="transfer-amount" placeholder="0" value="2500" class="w-full bg-purple-950/60 border border-purple-700/60 rounded-xl px-4 py-2 text-sm font-bold text-white focus:outline-none focus:border-purple-400">
+                    </div>
+                </div>
+
+                <button onclick="executeTransfer()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">
+                    Отправить перевод
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast" class="absolute top-12 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none z-50">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toast-message">Операция выполнена</span>
+        </div>
+
+    </div>
+
+    <!-- JavaScript logic -->
+    <script>
+        let userName = "Андрей";
+        let piggyBalance = 15000;
+        let piggyGoal = 100000;
+
+        let cards = [
+            { id: 1, name: "ALN Black", type: "MIR", balance: 50000.00, number: "4402" },
+            { id: 2, name: "ALN Premium", type: "PREMIUM", balance: 120000.00, number: "9011" }
+        ];
+
+        // Sound generator via Web Audio API
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'login') {
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.2);
+                } else if (type === 'transfer') {
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                }
+            } catch(e) {}
+        }
+
+        function startApp() {
+            const input = document.getElementById('username-input').value.trim();
+            if (input) {
+                userName = input;
+            }
+            document.getElementById('display-user-name').innerText = userName;
+            const initials = userName.slice(0, 2).toUpperCase();
+            document.getElementById('user-avatar-initials').innerText = initials;
+            
+            const welcome = document.getElementById('welcome-screen');
+            welcome.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => welcome.classList.add('hidden'), 500);
+
+            playSound('login');
+        }
+
+        function formatRubles(amount) {
+            return amount.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards-carousel');
+            container.innerHTML = cards.map(card => `
+                <div class="aln-card-gradient w-64 rounded-2xl p-4 shrink-0 shadow-lg relative overflow-hidden border border-purple-400/20">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[10px] text-purple-200/80 font-bold">${card.name}</span>
+                        <span class="bg-black/40 text-[9px] px-2 py-0.5 rounded text-purple-200 font-mono">•• ${card.number} ${card.type}</span>
+                    </div>
+                    <div class="text-xl font-black text-white mb-2">${formatRubles(card.balance)}</div>
+                    <div class="text-[9px] text-purple-300/60">Карта ALN Bank</div>
+                </div>
+            `).join('');
+        }
+
+        function createNewCard() {
+            const name = document.getElementById('new-card-name').value || 'ALN Virtual';
+            const type = document.getElementById('new-card-type').value;
+            const balance = parseFloat(document.getElementById('new-card-balance').value) || 0;
+            const randNum = Math.floor(1000 + Math.random() * 9000).toString();
+
+            cards.push({
+                id: Date.now(),
+                name: name,
+                type: type,
+                balance: balance,
+                number: randNum
+            });
+
+            renderCards();
+            closeModal('add-card-modal');
+            showToast('Новая карта успешно выпущена!');
+        }
+
+        function executeTransfer() {
+            const recipient = document.getElementById('recipient-input').value || 'Получатель';
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+
+            if (isNaN(amount) || amount <= 0) {
+                showToast('Укажите корректную сумму');
+                return;
+            }
+
+            if (cards.length > 0) {
+                cards[0].balance -= amount;
+                renderCards();
+            }
+
+            playSound('transfer');
+            closeModal('transfer-modal');
+
+            // Show Receipt Modal
+            document.getElementById('receipt-date').innerText = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('receipt-sender').innerText = userName;
+            document.getElementById('receipt-recipient').innerText = recipient;
+            document.getElementById('receipt-amount').innerText = formatRubles(amount);
+            
+            openModal('receipt-modal');
+            addTransaction(`Перевод для ${recipient}`, 'Переводы', amount, false);
+        }
+
+        function addToPiggy() {
+            const amount = parseFloat(document.getElementById('piggy-add-amount').value) || 0;
+            if (amount > 0 && cards[0].balance >= amount) {
+                cards[0].balance -= amount;
+                piggyBalance += amount;
+                renderCards();
+                
+                const percent = Math.min(100, Math.round((piggyBalance / piggyGoal) * 100));
+                document.getElementById('piggy-bar').style.width = percent + '%';
+                document.getElementById('piggy-saved-text').innerText = `${piggyBalance.toLocaleString()} / ${piggyGoal.toLocaleString()} ₽`;
+                
+                closeModal('piggy-modal');
+                showToast('Средства переведены в копилку!');
+            }
+        }
+
+        function simulateQrPayment() {
+            cards[0].balance -= 500;
+            renderCards();
+            playSound('transfer');
+            closeModal('qr-modal');
+            showToast('Оплата по QR провайдеру ALN прошла!');
+            addTransaction('Оплата по QR', 'Покупки', 500, false);
+        }
+
+        function saveLimits() {
+            closeModal('limits-modal');
+            showToast('Дневной лимит сохранен');
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function setQuickAmount(val) {
+            document.getElementById('topup-input').value = val;
+        }
+
+        function applyTopup() {
+            const val = parseFloat(document.getElementById('topup-input').value);
+            if (!isNaN(val) && val >= 0) {
+                cards[0].balance = val;
+                renderCards();
+                closeModal('topup-modal');
+                showToast('Баланс основной карты обновлен!');
+                addTransaction('Пополнение баланса', 'Система ALN', val, true);
+            }
+        }
+
+        function addTransaction(title, category, amount, isIncome) {
+            const list = document.getElementById('transaction-list');
+            const item = document.createElement('div');
+            item.className = 'bg-purple-950/30 border border-purple-900/30 rounded-xl p-2.5 flex justify-between items-center';
+            
+            const icon = isIncome ? '⚡' : '💸';
+            const amountText = isIncome ? `+ ${amount.toLocaleString('ru-RU')} ₽` : `- ${amount.toLocaleString('ru-RU')} ₽`;
+            const amountColor = isIncome ? 'text-emerald-400' : 'text-white';
+
+            item.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs">
+                        ${icon}
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-white">${title}</div>
+                        <div class="text-[10px] text-purple-400">Только что • ${category}</div>
+                    </div>
+                </div>
+                <div class="text-xs font-bold ${amountColor}">${amountText}</div>
+            `;
+
+            list.insertBefore(item, list.firstChild);
+        }
+
+        // Init
+        renderCards();
+    </script>
+</body>
+</html>
